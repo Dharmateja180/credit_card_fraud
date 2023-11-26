@@ -98,4 +98,49 @@
    - Make predictions on the entire test dataset.
    - Evaluate the Random Forest model using accuracy.
 
-This code covers data loading, exploration, preprocessing, model training, and evaluation for both SVM and Random Forest classifiers. It provides insights into the steps involved in a typical machine learning workflow for fraud detection.
+we'll use `AdaBoostClassifier` from scikit-learn to combine the SVM and Random Forest models.
+
+```python
+from sklearn.ensemble import AdaBoostClassifier
+
+# Create weak learners (base models)
+svm_base_model = svm.SVC(kernel='linear', probability=True)
+rf_base_model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Create AdaBoost ensemble
+ensemble_model = AdaBoostClassifier(
+    base_estimator=None,  # We use default base models (DecisionTreeClassifier)
+    n_estimators=50,       # Number of weak learners (you can adjust this)
+    learning_rate=1.0,
+    random_state=42
+)
+
+# Train AdaBoost ensemble on the training data
+ensemble_model.fit(X_train, y_train)
+
+# Make predictions on the entire test dataset using the ensemble
+prediction_ensemble_all = ensemble_model.predict(X_test_all)
+
+# Evaluate the ensemble model using accuracy
+accuracy_ensemble_all = accuracy_score(y_test_all, prediction_ensemble_all)
+print("Accuracy (Ensemble - Entire Test Dataset):", accuracy_ensemble_all)
+```
+
+
+8. **Create Weak Learners:**
+   - `svm_base_model`: An SVM classifier with a linear kernel and probability estimates enabled.
+   - `rf_base_model`: A Random Forest classifier.
+
+9. **Create AdaBoost Ensemble:**
+   - Use `AdaBoostClassifier` with the default base model (DecisionTreeClassifier).
+   - `n_estimators`: The number of weak learners in the ensemble (you can adjust this based on experimentation).
+   - `learning_rate`: The contribution of each weak learner to the final prediction.
+
+10. **Train AdaBoost Ensemble:**
+   - Fit the AdaBoost ensemble on the training data (`X_train`, `y_train`).
+
+11. **Make Predictions and Evaluate:**
+   - Use the ensemble model to make predictions on the entire test dataset (`X_test_all`).
+   - Evaluate the ensemble model's accuracy using `accuracy_score`.
+
+![image](https://github.com/Dharmateja180/credit_card_fraud/assets/106651499/0462ed59-d2f1-4725-8903-c80fcd6d0d58)
