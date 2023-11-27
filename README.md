@@ -82,6 +82,8 @@
    - Create an SVM classifier with a linear kernel and train it on the training data.
    - Make predictions on the entire test dataset.
    - Evaluate the SVM model using accuracy.
+     
+![image](https://github.com/Dharmateja180/credit_card_fraud/assets/106651499/c77e0b31-fafd-443a-b6c4-688501284522)
 
 7. **Random Forest Model Training and Evaluation:**
    ```python
@@ -97,25 +99,22 @@
    - Train the Random Forest model on the training data.
    - Make predictions on the entire test dataset.
    - Evaluate the Random Forest model using accuracy.
-
-we'll use `AdaBoostClassifier` from scikit-learn to combine the SVM and Random Forest models.
+![image](https://github.com/Dharmateja180/credit_card_fraud/assets/106651499/5909cd6c-8d0c-476e-bbb9-3f7f2761e3d3)
 
 ```python
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import VotingClassifier
 
 # Create weak learners (base models)
 svm_base_model = svm.SVC(kernel='linear', probability=True)
 rf_base_model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-# Create AdaBoost ensemble
-ensemble_model = AdaBoostClassifier(
-    base_estimator=None,  # We use default base models (DecisionTreeClassifier)
-    n_estimators=50,       # Number of weak learners (you can adjust this)
-    learning_rate=1.0,
-    random_state=42
+# Create a Voting Classifier with SVM and Random Forest
+ensemble_model = VotingClassifier(
+    estimators=[('svm', svm_base_model), ('rf', rf_base_model)],
+    voting='soft'  # 'soft' for probability-based voting
 )
 
-# Train AdaBoost ensemble on the training data
+# Train the ensemble model on the training data
 ensemble_model.fit(X_train, y_train)
 
 # Make predictions on the entire test dataset using the ensemble
@@ -127,20 +126,48 @@ print("Accuracy (Ensemble - Entire Test Dataset):", accuracy_ensemble_all)
 ```
 
 
-8. **Create Weak Learners:**
-   - `svm_base_model`: An SVM classifier with a linear kernel and probability estimates enabled.
-   - `rf_base_model`: A Random Forest classifier.
+7. **Import VotingClassifier:**
+   ```python
+   from sklearn.ensemble import VotingClassifier
+   ```
+   - Import the `VotingClassifier` class from scikit-learn, which allows you to combine multiple classifiers.
 
-9. **Create AdaBoost Ensemble:**
-   - Use `AdaBoostClassifier` with the default base model (DecisionTreeClassifier).
-   - `n_estimators`: The number of weak learners in the ensemble (you can adjust this based on experimentation).
-   - `learning_rate`: The contribution of each weak learner to the final prediction.
+8. **Create Weak Learners (Base Models):**
+   ```python
+   svm_base_model = svm.SVC(kernel='linear', probability=True)
+   rf_base_model = RandomForestClassifier(n_estimators=100, random_state=42)
+   ```
+   - Create instances of the weak learners (base models). In this case, an SVM with a linear kernel (`svm_base_model`) and a Random Forest (`rf_base_model`).
 
-10. **Train AdaBoost Ensemble:**
-   - Fit the AdaBoost ensemble on the training data (`X_train`, `y_train`).
+9. **Create Voting Classifier:**
+   ```python
+   ensemble_model = VotingClassifier(
+       estimators=[('svm', svm_base_model), ('rf', rf_base_model)],
+       voting='soft'  # 'soft' for probability-based voting
+   )
+   ```
+   - Create a `VotingClassifier` instance, specifying the weak learners as a list of tuples. Each tuple consists of a name ('svm' and 'rf') and the corresponding base model.
+   - Set `voting='soft'` to enable probability-based voting, where the final prediction is based on the weighted average of class probabilities.
 
-11. **Make Predictions and Evaluate:**
-   - Use the ensemble model to make predictions on the entire test dataset (`X_test_all`).
-   - Evaluate the ensemble model's accuracy using `accuracy_score`.
+10. **Train the Ensemble Model:**
+   ```python
+   ensemble_model.fit(X_train, y_train)
+   ```
+   - Train the ensemble model on the training data (`X_train`, `y_train`).
 
-![image](https://github.com/Dharmateja180/credit_card_fraud/assets/106651499/0462ed59-d2f1-4725-8903-c80fcd6d0d58)
+11. **Make Predictions:**
+   ```python
+   prediction_ensemble_all = ensemble_model.predict(X_test_all)
+   ```
+   - Make predictions on the entire test dataset using the ensemble.
+
+12. **Evaluate the Ensemble Model:**
+   ```python
+   accuracy_ensemble_all = accuracy_score(y_test_all, prediction_ensemble_all)
+   print("Accuracy (Ensemble - Entire Test Dataset):", accuracy_ensemble_all)
+   ```
+   - Evaluate the ensemble model's performance using accuracy, comparing its predictions (`prediction_ensemble_all`) with the true labels (`y_test_all`).
+ ![image](https://github.com/Dharmateja180/credit_card_fraud/assets/106651499/a35a8544-29d2-4628-aa67-0182e8b43614)
+
+
+This code creates an ensemble of SVM and Random Forest using a `VotingClassifier` with soft voting. The ensemble leverages the strengths of both models to potentially improve overall performance. 
